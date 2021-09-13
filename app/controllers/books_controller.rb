@@ -12,9 +12,14 @@ class BooksController < ApplicationController
   end
 
   def create
-    book = Book.new(book_params)
-    book.save
-    redirect_to book_path(book.id)
+    @book = Book.new(book_params)
+    if @book.save
+      # フラッシュメッセージ　createが成功した時
+      flash[:notice] = "Book was successfully created."
+     redirect_to book_path(@book.id)
+    else
+      render :new
+    end
   end
 
   def edit
@@ -22,22 +27,25 @@ class BooksController < ApplicationController
   end
   
   def update
-    book = Book.find(params[:id])
-    book.update(book_params)
-    redirect_to book_path(book)
+    @book = Book.find(params[:id])
+    if @book.update(book_params)
+       flash[:notice] = "Book was successfully updated."
+       redirect_to book_path(@book.id)
+    else
+       render :edit
+    end
   end
 
   def destroy
-    @book = Book.find(params[:id])
-    if @book.destroy
-      redirect_to books_path
-    else
-      render :edit
-    end
+    book = Book.find(params[:id])
+    book.destroy
+    redirect_to books_path
   end
+  
   # ストロングパラムズ
   private
   def book_params
+    # params.require(:book).permit(:title, :body)とすると「存在しない」か「空」というエラーになる
     params.require(:book).permit(:title, :body)
   end
 
